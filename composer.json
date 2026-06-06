@@ -1,0 +1,18 @@
+{
+    "name": "c0dei/laminas-smarty-module",
+    "description": "Smarty5 integration for Lamins MVC",
+    "type": "library",
+    "require": {
+        "php": "^7.2 || ^8.0",
+        "laminas/laminas-mvc": "^2.6",
+        "laminas/laminas-view": "3.2.x-dev",
+        "smarty/smarty": "^5.8"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "C0dei\\LaminasSmartyModule\\": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
