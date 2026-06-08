@@ -8,7 +8,7 @@ return [
     'view_manager' => [
         'smarty_default_suffix' => 'tpl',
         'strategies' => [
-            View\Strategy\SmartyStrategy::class,
+            Strategy\SmartyStrategy::class,
         ],
     ],
     'smarty' => [
@@ -19,8 +19,9 @@ return [
     ],
     'service_manager' => [
         'factories' => [
-            View\Renderer\SmartyRenderer::class => View\Renderer\SmartyRendererFactory::class,
-            View\Strategy\SmartyStrategy::class => View\Strategy\SmartyStrategyFactory::class,
+            ModuleOptions::class => ModuleOptionsFactory::class,
+            Renderer\SmartyRenderer::class => Renderer\SmartyRendererFactory::class,
+            Strategy\SmartyStrategy::class => Strategy\SmartyStrategyFactory::class,
         ],
     ],
 ];

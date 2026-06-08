@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace C0dei\LaminasSmartyModule\View\Strategy;
+namespace C0dei\LaminasSmartyModule\Strategy;
 
-use C0dei\LaminasSmartyModule\View\Renderer\SmartyRenderer;
+use C0dei\LaminasSmartyModule\Renderer\SmartyRenderer;
 use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 

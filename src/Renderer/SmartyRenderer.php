@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace C0dei\LaminasSmartyModule\View\Renderer;
+namespace C0dei\LaminasSmartyModule\Renderer;
 
 use Laminas\View\Exception;
 use Laminas\View\Model\ModelInterface;
@@ -45,7 +45,7 @@ class SmartyRenderer implements RendererInterface, TreeRendererInterface
         if ($nameOrModel instanceof ModelInterface) {
             $model = $nameOrModel;
             $nameOrModel = $model->getTemplate();
-            
+
             if (empty($nameOrModel)) {
                 throw new Exception\DomainException(sprintf(
                     '%s: received View Model argument, but template is empty',

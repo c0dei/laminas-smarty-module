@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace C0dei\LaminasSmartyModule\View\Strategy;
+namespace C0dei\LaminasSmartyModule\Strategy;
 
-use C0dei\LaminasSmartyModule\View\Renderer\SmartyRenderer;
+use C0dei\LaminasSmartyModule\Renderer\SmartyRenderer;
 use Laminas\EventManager\AbstractListenerAggregate;
 use Laminas\EventManager\EventManagerInterface;
 use Laminas\View\Model\ModelInterface;
@@ -29,7 +29,7 @@ class SmartyStrategy extends AbstractListenerAggregate
     public function selectRenderer(ViewEvent $e): ?SmartyRenderer
     {
         $model = $e->getModel();
-        
+
         if (!$model instanceof ModelInterface) {
             return null;
         }

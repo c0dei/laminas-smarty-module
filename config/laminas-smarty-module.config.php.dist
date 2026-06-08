@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'smarty' => [
+        // 'suffix' => 'tpl',
+        // 'compile_dir' => 'data/Smarty/compile',
+        // 'cache_dir' => 'data/Smarty/cache',
+        // 'caching' => 0,
+        // 'escape_html' => false,
+    ],
+];
