@@ -1,28 +1,41 @@
 {
     "name": "c0dei/laminas-smarty-module",
-    "description": "Smarty5 integration for Lamins MVC",
+    "description": "Smarty 5 integration for Laminas MVC",
     "type": "library",
+    "license": "MIT",
     "require": {
         "php": "^7.2 || ^8.0",
-        "laminas/laminas-mvc": "^3.3",
-        "laminas/laminas-view": "^2.20",
-        "smarty/smarty": "^5.8"
+        "laminas/laminas-eventmanager": "^3.0",
+        "laminas/laminas-mvc": "^3.1",
+        "laminas/laminas-servicemanager": "^3.3",
+        "laminas/laminas-stdlib": "^3.1",
+        "laminas/laminas-view": "^2.11",
+        "psr/container": "^1.0 || ^2.0",
+        "smarty/smarty": "^5.0"
     },
-    "license": "MIT",
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "laminas/laminas-http": "^2.11",
+        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^8.5 || ^9.6"
+    },
     "autoload": {
         "psr-4": {
             "C0dei\\LaminasSmartyModule\\": "src/"
         }
     },
-    "require-dev": {
-        "laminas/laminas-servicemanager": "^3.11",
-        "phpstan/phpstan": "^1.10",
-        "friendsofphp/php-cs-fixer": "^3.51"
+    "autoload-dev": {
+        "psr-4": {
+            "C0dei\\LaminasSmartyModuleTest\\": "test/"
+        }
     },
-    "minimum-stability": "dev",
+    "config": {
+        "sort-packages": true
+    },
     "scripts": {
         "cs:check": "php-cs-fixer fix --dry-run -v",
         "cs:fix": "php-cs-fixer fix -v",
-        "phpstan": "phpstan analyse src"
+        "phpstan": "phpstan analyse",
+        "test": "phpunit"
     }
 }

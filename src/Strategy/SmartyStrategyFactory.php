@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace C0dei\LaminasSmartyModule\Strategy;
 
+use C0dei\LaminasSmartyModule\ModuleOptions;
 use C0dei\LaminasSmartyModule\Renderer\SmartyRenderer;
-use Interop\Container\ContainerInterface;
-use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 
-class SmartyStrategyFactory implements FactoryInterface
+class SmartyStrategyFactory
 {
-    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null): SmartyStrategy
+    public function __invoke(ContainerInterface $container): SmartyStrategy
     {
-        $renderer = $container->get(SmartyRenderer::class);
-        return new SmartyStrategy($renderer);
+        /** @var ModuleOptions $options */
+        $options = $container->get(ModuleOptions::class);
+
+        return new SmartyStrategy($container->get(SmartyRenderer::class), $options->getSuffix());
     }
 }

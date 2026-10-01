@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace C0dei\LaminasSmartyModule;
 
-use Interop\Container\ContainerInterface;
-use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 
-class ModuleOptionsFactory implements FactoryInterface
+/**
+ * Plain invokable factory: avoids FactoryInterface, whose container type
+ * differs between laminas-servicemanager versions (Interop vs PSR).
+ */
+class ModuleOptionsFactory
 {
-    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null): ModuleOptions
+    public function __invoke(ContainerInterface $container): ModuleOptions
     {
         $config = $container->get('config');
         return new ModuleOptions($config['smarty'] ?? []);
