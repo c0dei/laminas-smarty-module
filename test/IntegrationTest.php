@@ -35,7 +35,7 @@ class IntegrationTest extends TestCase
     /**
      * @param array<string, mixed> $smartyConfig
      */
-    private function createContainer(array $smartyConfig = []): ServiceManager
+    private function createContainer(array $smartyConfig = [], bool $withViewRenderer = true): ServiceManager
     {
         $viewDir = __DIR__ . '/fixtures/view';
         $moduleConfig = (new Module())->getConfig();
@@ -48,7 +48,14 @@ class IntegrationTest extends TestCase
                 'cache_dir' => $this->tmpDir . '/cache',
             ],
         ]);
-        $container->setService('ViewResolver', new TemplatePathStack(['script_paths' => [$viewDir]]));
+        $resolver = new TemplatePathStack(['script_paths' => [$viewDir]]);
+        $container->setService('ViewResolver', $resolver);
+
+        if ($withViewRenderer) {
+            $phpRenderer = new PhpRenderer();
+            $phpRenderer->setResolver($resolver);
+            $container->setService('ViewRenderer', $phpRenderer);
+        }
 
         return $container;
     }
@@ -62,9 +69,7 @@ class IntegrationTest extends TestCase
     private function render(ViewModel $model, array $smartyConfig = []): string
     {
         $container = $this->createContainer($smartyConfig);
-
-        $phpRenderer = new PhpRenderer();
-        $phpRenderer->setResolver($container->get('ViewResolver'));
+        $phpRenderer = $container->get('ViewRenderer');
 
         $response = new Response();
         $view = new View();
@@ -98,6 +103,26 @@ class IntegrationTest extends TestCase
         $layout->addChild($this->model('index.tpl', ['name' => 'World']));
 
         self::assertSame("<html>[Hello World\n]</html>\n", $this->render($layout));
+    }
+
+    public function testTemplateWithoutSuffixRendersTpl(): void
+    {
+        self::assertSame("Hello World\n", $this->render($this->model('index', ['name' => 'World'])));
+    }
+
+    public function testTplTakesPrecedenceOverPhtmlWithoutSuffix(): void
+    {
+        self::assertSame("Smarty World\n", $this->render($this->model('both', ['name' => 'World'])));
+    }
+
+    public function testTemplateWithoutTplFallsBackToPhpRenderer(): void
+    {
+        self::assertSame("PHP only World", $this->render($this->model('only-php', ['name' => 'World'])));
+    }
+
+    public function testExplicitPhtmlSuffixUsesPhpRenderer(): void
+    {
+        self::assertSame("PHP World", $this->render($this->model('both.phtml', ['name' => 'World'])));
     }
 
     public function testIncludeResolvesAgainstTemplatePathStack(): void
@@ -149,6 +174,23 @@ class IntegrationTest extends TestCase
         self::assertSame("Hello alice\n", $render('user-1', 'alice'));
         self::assertSame("Hello bob\n", $render('user-2', 'bob'));
         self::assertSame("Hello alice\n", $render('user-1', 'changed'));
+    }
+
+    public function testViewHelpersAreAvailableAsThis(): void
+    {
+        $container = $this->createContainer();
+        $container->get('ViewRenderer')->plugin('basePath')->setBasePath('/app');
+
+        $output = $container->get(SmartyRenderer::class)->render($this->model('helper.tpl'));
+
+        self::assertSame("/app/css/a.css|<title>Hi</title>\n", $output);
+    }
+
+    public function testWorksWithoutViewRenderer(): void
+    {
+        $renderer = $this->createContainer([], false)->get(SmartyRenderer::class);
+
+        self::assertSame("Hello World\n", $renderer->render($this->model('index.tpl', ['name' => 'World'])));
     }
 
     public function testCreatesCompileAndCacheDirectories(): void

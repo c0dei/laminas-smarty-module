@@ -57,21 +57,28 @@ if that fails.
 
 ## Usage
 
-In your controllers, return a ViewModel as usual and specify a `.tpl` template:
+In your controllers, return a ViewModel as usual. Put `index.tpl` next to where
+`index.phtml` would be, and it is rendered by Smarty:
 
 ```php
 use Laminas\View\Model\ViewModel;
 
 public function indexAction()
 {
-    $view = new ViewModel(['name' => 'World']);
-    $view->setTemplate('application/index/index.tpl');
-    return $view;
+    // renders view/application/index/index.tpl
+    return new ViewModel(['name' => 'World']);
 }
 ```
 
-Templates are selected when the template name ends with the configured suffix,
-or when it resolves (e.g. through `template_map`) to a file with that suffix.
+Which renderer is used for a template name:
+
+| Template name | Rendered by |
+|---|---|
+| `application/index/index.tpl` (ends with the suffix) | Smarty |
+| `application/index/index`, and `index.tpl` exists | Smarty (`.tpl` wins over `.phtml`) |
+| `application/index/index`, only `index.phtml` exists | PhpRenderer |
+| `application/index/index.phtml` | PhpRenderer |
+| `layout/layout` mapped to a `.tpl` file in `template_map` | Smarty |
 
 ### Layouts
 
@@ -91,6 +98,24 @@ your `view_manager.template_path_stack`:
 ```smarty
 {include file="application/partial/menu.tpl"}
 ```
+
+### View helpers
+
+Laminas view helpers are available as `$this`, just like in `.phtml` templates:
+
+```smarty
+<head>
+  {$this->headTitle('My App') nofilter}
+  <link href="{$this->basePath('css/style.css')}" rel="stylesheet">
+</head>
+<a href="{$this->url('item', ['id' => $item.id])}">{$item.name}</a>
+{$this->form($form) nofilter}
+```
+
+With `escape_html` enabled, helper output is escaped like any other value. That is
+right for plain values such as `url()` or `basePath()`, but helpers that return HTML
+(`headTitle()`, `headLink()`, `form()`, ...) need `nofilter`. Do not wrap values in
+`escapeHtml()`, as they would be escaped twice.
 
 ### Escaping
 

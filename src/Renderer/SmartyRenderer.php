@@ -27,10 +27,13 @@ class SmartyRenderer implements RendererInterface, TreeRendererInterface
     private $smarty;
     /** @var ResolverInterface|null */
     private $resolver = null;
+    /** @var string Suffix including the leading dot, e.g. ".tpl" */
+    private $suffix;
 
-    public function __construct(Smarty $smarty)
+    public function __construct(Smarty $smarty, string $suffix = 'tpl')
     {
         $this->smarty = $smarty;
+        $this->suffix = '.' . ltrim($suffix, '.');
     }
 
     public function getEngine(): Smarty
@@ -73,9 +76,9 @@ class SmartyRenderer implements RendererInterface, TreeRendererInterface
             throw new Exception\DomainException('No resolver provided for SmartyRenderer');
         }
 
-        $file = $this->resolver->resolve($nameOrModel);
+        $file = $this->resolveFile($nameOrModel);
 
-        if (! $file) {
+        if ($file === null) {
             throw new Exception\DomainException(sprintf(
                 '%s: could not resolve template "%s" to a file',
                 __METHOD__,
@@ -99,6 +102,47 @@ class SmartyRenderer implements RendererInterface, TreeRendererInterface
         $template->assign($values);
 
         return $template->fetch();
+    }
+
+    /**
+     * Whether $name resolves to a Smarty template: either it ends with the
+     * suffix, or "$name.<suffix>" exists, or it resolves (e.g. through a
+     * template map) to a file with the suffix.
+     */
+    public function canRender(string $name): bool
+    {
+        if ($this->hasSuffix($name)) {
+            return true;
+        }
+
+        $file = $this->resolveFile($name);
+        return $file !== null && $this->hasSuffix($file);
+    }
+
+    /**
+     * Names without the suffix are tried as "$name.<suffix>" first, so
+     * "application/index/index" renders index.tpl when it exists.
+     */
+    private function resolveFile(string $name): ?string
+    {
+        if (! $this->resolver) {
+            return null;
+        }
+
+        if (! $this->hasSuffix($name)) {
+            $file = $this->resolver->resolve($name . $this->suffix);
+            if (is_string($file) && $file !== '') {
+                return $file;
+            }
+        }
+
+        $file = $this->resolver->resolve($name);
+        return is_string($file) && $file !== '' ? $file : null;
+    }
+
+    private function hasSuffix(string $name): bool
+    {
+        return substr($name, -strlen($this->suffix)) === $this->suffix;
     }
 
     /**

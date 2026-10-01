@@ -33,7 +33,12 @@ class SmartyRendererFactory
         $smarty->setCaching($moduleOptions->getCaching());
         $smarty->setEscapeHtml($moduleOptions->getEscapeHtml());
 
-        $renderer = new SmartyRenderer($smarty);
+        // Expose Laminas view helpers as {$this->url('home')}, like in .phtml
+        if ($container->has('ViewRenderer')) {
+            $smarty->assign('this', $container->get('ViewRenderer'));
+        }
+
+        $renderer = new SmartyRenderer($smarty, $moduleOptions->getSuffix());
 
         if ($container->has('ViewResolver')) {
             $resolver = $container->get('ViewResolver');
