@@ -4,12 +4,16 @@ This module provides Smarty 5 integration for Laminas MVC applications.
 
 ## Requirements
 
-- PHP 7.2 or higher (including PHP 8.x)
+- PHP 7.3 or higher (including PHP 8.x)
 - Laminas MVC 3.1+ / laminas-view 2.11+
 - Smarty 5
 
 Composer picks the Laminas versions matching your PHP version
-(e.g. laminas-mvc 3.1 / laminas-view 2.11 on PHP 7.2).
+(e.g. laminas-mvc 3.3 / laminas-view 2.16 on PHP 7.3).
+
+PHP 7.2 is not supported: laminas-mvc requires laminas-http, and every release
+fixing [CVE-2021-3007](https://nvd.nist.gov/vuln/detail/CVE-2021-3007) (2.14.2+)
+requires PHP 7.3. Vulnerable laminas-http versions are declared as a conflict.
 
 ## Installation
 
