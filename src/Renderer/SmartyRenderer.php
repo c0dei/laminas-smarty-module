@@ -14,6 +14,15 @@ use Smarty\Smarty;
 
 class SmartyRenderer implements RendererInterface, TreeRendererInterface
 {
+    /**
+     * ViewModel option holding the Smarty cache_id. Output is cached only
+     * when this is set, so pages with different variables never share a cache.
+     */
+    public const OPTION_CACHE_ID = 'smarty_cache_id';
+
+    /** ViewModel option holding the Smarty compile_id. */
+    public const OPTION_COMPILE_ID = 'smarty_compile_id';
+
     /** @var Smarty */
     private $smarty;
     /** @var ResolverInterface|null */
@@ -42,6 +51,9 @@ class SmartyRenderer implements RendererInterface, TreeRendererInterface
 
     public function render($nameOrModel, $values = null): string
     {
+        $cacheId = null;
+        $compileId = null;
+
         if ($nameOrModel instanceof ModelInterface) {
             $model = $nameOrModel;
             $nameOrModel = $model->getTemplate();
@@ -53,6 +65,8 @@ class SmartyRenderer implements RendererInterface, TreeRendererInterface
                 ));
             }
             $values = $model->getVariables();
+            $cacheId = $model->getOption(self::OPTION_CACHE_ID);
+            $compileId = $model->getOption(self::OPTION_COMPILE_ID);
         }
 
         if (! $this->resolver) {
@@ -78,14 +92,21 @@ class SmartyRenderer implements RendererInterface, TreeRendererInterface
         }
 
         // Isolate data for this specific template rendering
-        $template = $this->smarty->createTemplate('file:' . $file);
+        $template = $this->smarty->createTemplate('file:' . $file, $cacheId, $compileId);
+        if ($cacheId === null) {
+            $template->setCaching(Smarty::CACHING_OFF);
+        }
         $template->assign($values);
 
         return $template->fetch();
     }
 
+    /**
+     * Children are rendered by Laminas\View\View and passed in as variables
+     * (e.g. {$content}), since Smarty has no notion of view model trees.
+     */
     public function canRenderTrees(): bool
     {
-        return true;
+        return false;
     }
 }

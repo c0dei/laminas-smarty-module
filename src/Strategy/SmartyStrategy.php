@@ -15,9 +15,13 @@ class SmartyStrategy extends AbstractListenerAggregate
     /** @var SmartyRenderer */
     private $renderer;
 
-    public function __construct(SmartyRenderer $renderer)
+    /** @var string Suffix including the leading dot, e.g. ".tpl" */
+    private $suffix;
+
+    public function __construct(SmartyRenderer $renderer, string $suffix = 'tpl')
     {
         $this->renderer = $renderer;
+        $this->suffix = '.' . ltrim($suffix, '.');
     }
 
     public function attach(EventManagerInterface $events, $priority = 1): void
@@ -30,7 +34,7 @@ class SmartyStrategy extends AbstractListenerAggregate
     {
         $model = $e->getModel();
 
-        if (!$model instanceof ModelInterface) {
+        if (! $model instanceof ModelInterface) {
             return null;
         }
 
@@ -40,14 +44,15 @@ class SmartyStrategy extends AbstractListenerAggregate
             return null;
         }
 
-        if (substr($template, -4) === '.tpl') {
+        if ($this->hasSuffix($template)) {
             return $this->renderer;
         }
 
+        // e.g. a template map entry "layout/layout" => ".../layout.tpl"
         $resolver = $this->renderer->getResolver();
         if ($resolver) {
             $path = $resolver->resolve($template);
-            if ($path && substr($path, -4) === '.tpl') {
+            if (is_string($path) && $this->hasSuffix($path)) {
                 return $this->renderer;
             }
         }
@@ -57,8 +62,7 @@ class SmartyStrategy extends AbstractListenerAggregate
 
     public function injectResponse(ViewEvent $e): void
     {
-        $renderer = $e->getRenderer();
-        if ($renderer !== $this->renderer) {
+        if ($e->getRenderer() !== $this->renderer) {
             return;
         }
 
@@ -68,7 +72,11 @@ class SmartyStrategy extends AbstractListenerAggregate
             return;
         }
 
-        $response = $e->getResponse();
-        $response->setContent($result);
+        $e->getResponse()->setContent($result);
+    }
+
+    private function hasSuffix(string $name): bool
+    {
+        return substr($name, -strlen($this->suffix)) === $this->suffix;
     }
 }

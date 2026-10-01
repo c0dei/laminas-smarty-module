@@ -9,10 +9,17 @@ use Laminas\Stdlib\AbstractOptions;
 class ModuleOptions extends AbstractOptions
 {
     /**
-     * Template suffix for Smarty files
+     * Template suffix for Smarty files (without the leading dot)
      * @var string
      */
     protected $suffix = 'tpl';
+
+    /**
+     * Directories Smarty searches for {include} / {extends}.
+     * When empty, view_manager.template_path_stack is used.
+     * @var string[]
+     */
+    protected $templateDir = [];
 
     /**
      * Directory for compiled templates
@@ -27,26 +34,43 @@ class ModuleOptions extends AbstractOptions
     protected $cacheDir = 'data/Smarty/cache';
 
     /**
-     * Enable caching
+     * Smarty caching mode (Smarty::CACHING_OFF, CACHING_LIFETIME_CURRENT, ...)
      * @var int
      */
     protected $caching = 0;
 
     /**
-     * Auto-escape HTML
+     * Auto-escape HTML in {$var} output
      * @var bool
      */
-    protected $escapeHtml = false;
+    protected $escapeHtml = true;
 
     public function setSuffix(string $suffix): self
     {
-        $this->suffix = $suffix;
+        $this->suffix = ltrim($suffix, '.');
         return $this;
     }
 
     public function getSuffix(): string
     {
         return $this->suffix;
+    }
+
+    /**
+     * @param string|string[] $templateDir
+     */
+    public function setTemplateDir($templateDir): self
+    {
+        $this->templateDir = array_values((array) $templateDir);
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getTemplateDir(): array
+    {
+        return $this->templateDir;
     }
 
     public function setCompileDir(string $compileDir): self
@@ -71,9 +95,12 @@ class ModuleOptions extends AbstractOptions
         return $this->cacheDir;
     }
 
-    public function setCaching(int $caching): self
+    /**
+     * @param int|bool $caching
+     */
+    public function setCaching($caching): self
     {
-        $this->caching = $caching;
+        $this->caching = (int) $caching;
         return $this;
     }
 

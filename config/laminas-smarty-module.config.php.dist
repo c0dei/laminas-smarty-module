@@ -5,9 +5,12 @@ declare(strict_types=1);
 return [
     'smarty' => [
         // 'suffix' => 'tpl',
+        // Defaults to view_manager.template_path_stack when empty
+        // 'template_dir' => [__DIR__ . '/../../module/Application/view'],
         // 'compile_dir' => 'data/Smarty/compile',
         // 'cache_dir' => 'data/Smarty/cache',
-        // 'caching' => 0,
-        // 'escape_html' => false,
+        // Output is cached only for ViewModels with the "smarty_cache_id" option set
+        // 'caching' => \Smarty\Smarty::CACHING_LIFETIME_CURRENT,
+        // 'escape_html' => true,
     ],
 ];
