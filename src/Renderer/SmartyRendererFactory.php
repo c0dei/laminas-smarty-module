@@ -33,7 +33,7 @@ class SmartyRendererFactory
         $smarty->setCaching($moduleOptions->getCaching());
         $smarty->setEscapeHtml($moduleOptions->getEscapeHtml());
 
-        $renderer = new SmartyRenderer($smarty);
+        $renderer = new SmartyRenderer($smarty, $moduleOptions->getSuffix());
 
         if ($container->has('ViewResolver')) {
             $resolver = $container->get('ViewResolver');

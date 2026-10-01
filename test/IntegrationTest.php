@@ -100,6 +100,26 @@ class IntegrationTest extends TestCase
         self::assertSame("<html>[Hello World\n]</html>\n", $this->render($layout));
     }
 
+    public function testTemplateWithoutSuffixRendersTpl(): void
+    {
+        self::assertSame("Hello World\n", $this->render($this->model('index', ['name' => 'World'])));
+    }
+
+    public function testTplTakesPrecedenceOverPhtmlWithoutSuffix(): void
+    {
+        self::assertSame("Smarty World\n", $this->render($this->model('both', ['name' => 'World'])));
+    }
+
+    public function testTemplateWithoutTplFallsBackToPhpRenderer(): void
+    {
+        self::assertSame("PHP only World", $this->render($this->model('only-php', ['name' => 'World'])));
+    }
+
+    public function testExplicitPhtmlSuffixUsesPhpRenderer(): void
+    {
+        self::assertSame("PHP World", $this->render($this->model('both.phtml', ['name' => 'World'])));
+    }
+
     public function testIncludeResolvesAgainstTemplatePathStack(): void
     {
         self::assertSame("P:1\n", $this->render($this->model('include.tpl')));

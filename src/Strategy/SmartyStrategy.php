@@ -15,13 +15,9 @@ class SmartyStrategy extends AbstractListenerAggregate
     /** @var SmartyRenderer */
     private $renderer;
 
-    /** @var string Suffix including the leading dot, e.g. ".tpl" */
-    private $suffix;
-
-    public function __construct(SmartyRenderer $renderer, string $suffix = 'tpl')
+    public function __construct(SmartyRenderer $renderer)
     {
         $this->renderer = $renderer;
-        $this->suffix = '.' . ltrim($suffix, '.');
     }
 
     public function attach(EventManagerInterface $events, $priority = 1): void
@@ -44,20 +40,7 @@ class SmartyStrategy extends AbstractListenerAggregate
             return null;
         }
 
-        if ($this->hasSuffix($template)) {
-            return $this->renderer;
-        }
-
-        // e.g. a template map entry "layout/layout" => ".../layout.tpl"
-        $resolver = $this->renderer->getResolver();
-        if ($resolver) {
-            $path = $resolver->resolve($template);
-            if (is_string($path) && $this->hasSuffix($path)) {
-                return $this->renderer;
-            }
-        }
-
-        return null;
+        return $this->renderer->canRender($template) ? $this->renderer : null;
     }
 
     public function injectResponse(ViewEvent $e): void
@@ -73,10 +56,5 @@ class SmartyStrategy extends AbstractListenerAggregate
         }
 
         $e->getResponse()->setContent($result);
-    }
-
-    private function hasSuffix(string $name): bool
-    {
-        return substr($name, -strlen($this->suffix)) === $this->suffix;
     }
 }
