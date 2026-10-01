@@ -99,6 +99,24 @@ your `view_manager.template_path_stack`:
 {include file="application/partial/menu.tpl"}
 ```
 
+### View helpers
+
+Laminas view helpers are available as `$this`, just like in `.phtml` templates:
+
+```smarty
+<head>
+  {$this->headTitle('My App') nofilter}
+  <link href="{$this->basePath('css/style.css')}" rel="stylesheet">
+</head>
+<a href="{$this->url('item', ['id' => $item.id])}">{$item.name}</a>
+{$this->form($form) nofilter}
+```
+
+With `escape_html` enabled, helper output is escaped like any other value. That is
+right for plain values such as `url()` or `basePath()`, but helpers that return HTML
+(`headTitle()`, `headLink()`, `form()`, ...) need `nofilter`. Do not wrap values in
+`escapeHtml()`, as they would be escaped twice.
+
 ### Escaping
 
 `escape_html` is enabled by default, so `{$var}` is HTML-escaped. Use
